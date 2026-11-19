@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+out/
+vendor/
+draft.html
+doc.html
+draft.pdf
+qa/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,168 @@
+/* ==========================================================================
+   create-pdf · document stylesheet
+   A4 flowing document with automatic numbering, figures, tables and callouts.
+   Page headers/footers, TOC page numbers and PDF bookmarks are added by
+   scripts/build.py after printing (Chrome has no CSS margin boxes).
+   ========================================================================== */
+
+@page {
+  size: A4;
+  margin: 24mm 21mm 22mm;        /* header 12mm / footer 286mm live in these */
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.95;
+  color: #2c313a;
+  -webkit-font-smoothing: antialiased;
+  text-align: justify;
+  counter-reset: fig tab eq;
+}
+
+/* ---------- cover -------------------------------------------------------- */
+.cover {
+  /* stays inside the text block: Chrome scales the whole document if any
+     page overflows the printable width, so no full-bleed cover */
+  height: 251mm; padding: 6mm 0 0;
+  break-after: page;
+  display: flex; flex-direction: column;
+}
+.cover .eyebrow { font-size: 8pt; letter-spacing: .28em; color: #8b94a3; text-transform: uppercase; }
+.cover .rule { width: 28mm; height: 1mm; background: #0f4c81; margin: 9mm 0 12mm; }
+.cover h1 { break-before: avoid; page-break-before: avoid; border-bottom: none; padding-bottom: 0; font-size: 31pt; line-height: 1.35; margin: 0; color: #14181f; font-weight: 700; letter-spacing: .01em; }
+.cover .sub { font-size: 14pt; color: #4a5568; margin-top: 7mm; line-height: 1.7; font-weight: 400; }
+.cover .abstract { font-size: 9.5pt; color: #55606f; line-height: 2; margin-top: 14mm;
+  padding-left: 5mm; border-left: 1.2mm solid #d7dee8; max-width: 140mm; }
+.cover .spacer { flex: 1; }
+.cover .meta { border-top: .5pt solid #d7dee8; padding-top: 5mm; font-size: 9pt; color: #6b7484; line-height: 2; }
+.cover .meta b { color: #2c313a; font-weight: 600; }
+.cover .meta .row { display: flex; gap: 8mm; }
+.cover .org { font-size: 10pt; color: #0f4c81; letter-spacing: .06em; margin-top: 4mm; }
+
+/* ---------- toc ---------------------------------------------------------- */
+.toc { break-after: page; }
+.toc h2 { break-before: avoid; }
+.toc-title { font-size: 20pt; margin: 0 0 8mm; color: #14181f; }
+.toc-title::after { content: ""; display: block; width: 18mm; height: .8mm; background: #0f4c81; margin-top: 3mm; }
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc li { display: flex; align-items: baseline; gap: 2mm; padding: 1.7mm 0;
+  border-bottom: .3pt dotted #cfd7e1; font-size: 10pt; }
+.toc li.lvl3 { padding-left: 9mm; font-size: 9.2pt; color: #596374; border-bottom: none; }
+.toc .t { color: #23282f; }
+.toc .d { flex: 1; }
+.toc .p { font-variant-numeric: tabular-nums; color: #0f4c81; font-weight: 600; min-width: 8mm; text-align: right; }
+.toc li.lvl3 .p { font-weight: 400; color: #596374; }
+
+/* ---------- headings (numbers injected as .secno) ------------------------ */
+h1, h2, h3, h4 { color: #14181f; break-after: avoid; page-break-after: avoid; }
+h1 {
+  break-before: page; page-break-before: always;
+  font-size: 21pt; line-height: 1.4; margin: 0 0 7mm; font-weight: 700;
+  padding-bottom: 3.5mm; border-bottom: .8pt solid #0f4c81;
+}
+h1 .secno { color: #0f4c81; font-weight: 600; margin-right: 3mm; font-size: 21pt; }
+h2 { font-size: 15.5pt; margin: 9mm 0 3mm; font-weight: 700; line-height: 1.5; }
+h2 .secno { color: #0f4c81; margin-right: 2.4mm; font-weight: 600; }
+h3 { font-size: 11.5pt; margin: 6mm 0 2mm; font-weight: 700; }
+h3 .secno { color: #6b7484; margin-right: 2mm; font-weight: 600; }
+h4 { font-size: 10.5pt; margin: 4mm 0 1.5mm; font-weight: 700; }
+h1 + h2, h1 + p, h1 + .lead { margin-top: 0; }
+
+/* ---------- text --------------------------------------------------------- */
+p { margin: 0 0 2.4mm; orphans: 3; widows: 3; }
+p.lead { font-size: 11pt; line-height: 2; color: #3b4149; margin-bottom: 4mm; }
+p.small, .small { font-size: 9pt; line-height: 1.8; }
+.muted { color: #6b7484; }
+b, strong { font-weight: 700; color: #14181f; }
+.accent { color: #0f4c81; }
+a { color: #0f4c81; text-decoration: none; }
+ul, ol { margin: 0 0 2.6mm; padding-left: 6mm; }
+li { margin-bottom: 1.1mm; }
+ul.tight li, ol.tight li { margin-bottom: .4mm; }
+hr { border: none; border-top: .4pt solid #d9dee6; margin: 5mm 0; }
+
+/* ---------- math --------------------------------------------------------- */
+.katex { font-size: 1.02em; }
+.math-block { margin: 2.6mm 0; text-align: center; }
+.katex-display > .katex { font-size: 1.1em; }
+/* KaTeX \text{} lacks CJK glyphs; without this Chrome falls back to SimSun */
+.katex .text, .katex .mord.text, .katex .textrm, .katex .textnormal, .katex .textsf {
+  font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif;
+}
+
+/* ---------- figures & tables (auto-numbered) ----------------------------- */
+.figure { margin: 5mm 0 6mm; break-inside: avoid; page-break-inside: avoid; counter-increment: fig; }
+.figure svg, .figure .fig-svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+.figure img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.figure figcaption, .table-wrap figcaption {
+  font-size: 8.5pt; color: #6b7484; text-align: center; margin-top: 2.4mm; line-height: 1.7;
+}
+.figure figcaption::before { content: "图 " counter(fig) "　"; color: #0f4c81; font-weight: 700; }
+
+.table-wrap { break-inside: avoid; page-break-inside: avoid; margin: 5mm 0 6mm; counter-increment: tab; }
+.table-wrap figcaption { text-align: center; margin: 0 0 2.2mm; }
+.table-wrap figcaption::before { content: "表 " counter(tab) "　"; color: #0f4c81; font-weight: 700; }
+table { width: 100%; border-collapse: collapse; font-size: 9pt; line-height: 1.7; }
+thead { display: table-header-group; }          /* header repeats across pages */
+tr { break-inside: avoid; }
+th {
+  text-align: left; font-weight: 700; color: #14181f; font-size: 8.8pt;
+  padding: 2.2mm 2.4mm; border-top: 1pt solid #14181f; border-bottom: .5pt solid #14181f;
+}
+td { padding: 1.9mm 2.4mm; border-bottom: .3pt solid #dde3ec; vertical-align: top; }
+tbody tr:last-child td { border-bottom: 1pt solid #14181f; }
+td.c, th.c { text-align: center; }
+td.r, th.r { text-align: right; }
+table caption { caption-side: top; }
+
+/* ---------- callouts ----------------------------------------------------- */
+.callout { background: #f4f7fb; border-left: 1.4mm solid #0f4c81; padding: 3mm 4.2mm 2.4mm;
+  margin: 4.5mm 0; break-inside: avoid; }
+.callout .ct { font-size: 8.5pt; font-weight: 700; color: #0f4c81; letter-spacing: .06em; margin-bottom: 1.2mm; }
+.callout p { margin: 0 0 1mm; font-size: 9.6pt; line-height: 1.85; }
+.callout p:last-child { margin-bottom: 0; }
+.warn { background: #fdf7ef; border-left-color: #b45309; }
+.warn .ct { color: #92400e; }
+.note { background: #f2f8f4; border-left-color: #1f6b52; }
+.note .ct { color: #14523f; }
+
+blockquote { margin: 4mm 0 4mm 6mm; padding-left: 4mm; border-left: .8mm solid #d7dee8;
+  color: #4a5568; font-size: 9.8pt; line-height: 1.95; }
+blockquote p:last-child { margin-bottom: 0; }
+
+/* ---------- code --------------------------------------------------------- */
+pre { background: #f6f8fa; border: .4pt solid #e2e8f0; padding: 3mm 4mm; margin: 3.5mm 0;
+  font-family: "Cascadia Mono", Consolas, "SF Mono", monospace; font-size: 8.4pt;
+  line-height: 1.65; white-space: pre-wrap; word-break: break-word; break-inside: avoid; }
+code { font-family: "Cascadia Mono", Consolas, monospace; font-size: .92em;
+  background: #f2f4f7; padding: .3mm 1mm; border-radius: .6mm; }
+pre code { background: none; padding: 0; }
+
+/* ---------- references / appendix ---------------------------------------- */
+.refs { font-size: 9pt; line-height: 1.85; }
+.refs ol { padding-left: 7mm; }
+.refs li { margin-bottom: 1.6mm; }
+.appendix h1 { border-bottom-color: #6b7484; }
+.appendix h1 .secno { color: #6b7484; }
+
+/* ---------- helpers ------------------------------------------------------ */
+.nowrap { white-space: nowrap; }
+.center { text-align: center; }
+.right { text-align: right; }
+.mt0 { margin-top: 0; }
+.mb0 { margin-bottom: 0; }
+.mt3 { margin-top: 3mm; }
+.mt6 { margin-top: 6mm; }
+.cols { display: flex; gap: 6mm; }
+.cols > * { min-width: 0; }
+.cols.c2 > * { flex: 1 1 0; }
+.kpis { display: flex; gap: 4mm; margin: 4mm 0; }
+.kpi { flex: 1; border-top: 1mm solid #0f4c81; padding-top: 2.4mm; }
+.kpi .k { font-size: 8pt; color: #6b7484; letter-spacing: .06em; }
+.kpi .v { font-size: 13pt; color: #14181f; font-weight: 700; margin-top: 1mm; }
+
+/* keep these together at page breaks */
+.keep { break-inside: avoid; page-break-inside: avoid; }
